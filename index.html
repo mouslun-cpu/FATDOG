@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>🐶 神狗散步搶購戰</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #0d0d1a;
+      color: #fff;
+      min-height: 100vh;
+    }
+    .app-wrap { max-width: 480px; margin: 0 auto; min-height: 100vh; position: relative; }
+
+    /* ── WAITING SCREEN ───────────────────────────────── */
+    .waiting-bg {
+      background: radial-gradient(ellipse at 50% 30%, #1a0a3a 0%, #0a0a18 70%);
+      min-height: 100vh;
+    }
+
+    /* ── A GROUP (Hell Mode) ──────────────────────────── */
+    .hell-bg { background: #111118; min-height: 100vh; }
+    .hell-header {
+      padding: 10px 12px 6px; border-bottom: 1px solid #222;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .hell-logo { font-size: 16px; }
+    .hell-site-name { font-size: 11px; color: #666; }
+    .hell-nav {
+      display: flex; gap: 12px; font-size: 10px; color: #555;
+      padding: 6px 12px; border-bottom: 1px solid #1e1e1e;
+    }
+    .hell-form-wrap {
+      margin: 16px 10px; padding: 14px 12px;
+      background: #1a1a28; border: 1px solid #2a2a3a; border-radius: 6px;
+    }
+    .hell-form-title {
+      font-size: 13px; font-weight: 700; color: #999;
+      margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #2a2a3a;
+    }
+    .hell-field { margin-bottom: 10px; }
+    .hell-label { display: block; font-size: 10px; color: #666; margin-bottom: 3px; }
+    .hell-input {
+      width: 100%; padding: 5px 8px; font-size: 12px;
+      background: #0d0d18; border: 1px solid #333; color: #aaa; border-radius: 3px;
+    }
+    .hell-input:focus { outline: none; border-color: #444; }
+    .hell-select {
+      width: 100%; padding: 3px 4px; font-size: 10px;
+      background: #0d0d18; border: 1px solid #333; color: #aaa;
+      border-radius: 3px; height: 30px;
+    }
+    .hell-footer-row {
+      display: flex; justify-content: flex-end; align-items: center;
+      gap: 8px; margin-top: 8px;
+    }
+    .hell-note { font-size: 9px; color: #555; }
+    .hell-submit {
+      width: 52px; height: 22px; font-size: 10px;
+      background: #8b0000; color: #ccc; border: 1px solid #600;
+      border-radius: 2px; cursor: pointer; flex-shrink: 0;
+    }
+    .hell-submit:active { background: #6b0000; }
+    .hell-disclaimer { font-size: 9px; color: #444; text-align: center; padding: 8px; line-height: 1.6; }
+
+    /* ── B GROUP (Smooth Mode) ────────────────────────── */
+    .smooth-bg {
+      background: linear-gradient(180deg, #0f0c29 0%, #1a1040 40%, #0d1b2a 100%);
+      min-height: 100vh;
+    }
+    .smooth-header { text-align: center; padding: 36px 24px 20px; }
+    .smooth-dog { font-size: 64px; line-height: 1; margin-bottom: 12px; }
+    .smooth-title {
+      font-size: 28px; font-weight: 900;
+      background: linear-gradient(135deg, #ff6b6b, #ffd93d, #ff6b6b);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text; margin-bottom: 6px;
+    }
+    .smooth-subtitle { font-size: 14px; color: #8080b0; }
+    .smooth-form { padding: 0 20px 130px; }
+    .smooth-section { margin-bottom: 24px; }
+    .smooth-label { display: block; font-size: 15px; font-weight: 700; color: #c0c0e0; margin-bottom: 10px; }
+    .smooth-input-row { display: flex; gap: 10px; align-items: stretch; }
+    .smooth-input {
+      flex: 1; padding: 14px 16px; font-size: 20px; font-weight: 700; font-family: monospace;
+      background: rgba(255,255,255,0.06); border: 2px solid rgba(255,255,255,0.12);
+      color: #fff; border-radius: 12px; transition: border-color 0.2s;
+    }
+    .smooth-input::placeholder { color: rgba(255,255,255,0.25); font-size: 15px; font-weight: 400; }
+    .smooth-input.filled { border-color: #22c55e; color: #4ade80; }
+    .smooth-autofill {
+      padding: 0 14px; background: #22c55e; color: #000; border: none;
+      border-radius: 12px; font-size: 12px; font-weight: 900; cursor: pointer;
+      line-height: 1.3; text-align: center; transition: all 0.15s; white-space: nowrap;
+    }
+    .smooth-autofill:active { transform: scale(0.95); }
+    .smooth-autofill.done { background: #16a34a; }
+    .smooth-subject-btn {
+      display: block; width: 100%; padding: 26px 20px;
+      background: linear-gradient(135deg, #7c3aed, #4f46e5); color: #fff; border: none;
+      border-radius: 18px; font-size: 24px; font-weight: 900; cursor: pointer;
+      box-shadow: 0 4px 30px rgba(124,58,237,0.45); transition: all 0.2s;
+      margin-bottom: 10px; letter-spacing: 1px;
+    }
+    .smooth-subject-btn:active { transform: scale(0.98); }
+    .smooth-subject-btn.selected {
+      background: linear-gradient(135deg, #059669, #047857);
+      box-shadow: 0 4px 30px rgba(5,150,105,0.45);
+    }
+    .smooth-hint { font-size: 12px; color: #5050a0; text-align: center; }
+    .smooth-submit {
+      position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+      width: 100%; max-width: 480px; padding: 22px 20px;
+      background: linear-gradient(135deg, #dc2626, #b91c1c); color: #fff; border: none;
+      font-size: 20px; font-weight: 900; cursor: pointer; letter-spacing: 1px;
+      box-shadow: 0 -4px 32px rgba(220,38,38,0.55); transition: background 0.15s;
+    }
+    .smooth-submit:active { background: #991b1b; }
+
+    /* ── B Group code quick-select chips ─────────────── */
+    .code-chips { display:flex; gap:8px; margin-top:8px; flex-wrap:wrap; }
+    .code-chip {
+      padding:6px 14px; border-radius:20px; cursor:pointer; font-size:12px; font-weight:700;
+      background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15);
+      color:#9090c0; transition:all 0.15s; font-family:monospace; letter-spacing:1px;
+    }
+    .code-chip:active { transform:scale(0.95); }
+
+    /* ── B Group reason templates ──────────────────────── */
+    .reason-templates { display:flex; flex-direction:column; gap:6px; margin-top:8px; }
+    .reason-tpl {
+      padding:10px 14px; border-radius:10px; cursor:pointer; font-size:13px; font-weight:700;
+      background:rgba(124,58,237,0.12); border:1px solid rgba(124,58,237,0.3);
+      color:#a78bfa; text-align:left; transition:all 0.15s;
+    }
+    .reason-tpl:active { transform:scale(0.98); background:rgba(124,58,237,0.25); }
+    .reason-tpl.used { background:rgba(5,150,105,0.2); border-color:#10b981; color:#6ee7b7; }
+
+    /* ── B Group dept chips ───────────────────────────── */
+    .dept-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+    .dept-chip {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 4px; padding: 12px 4px;
+      background: rgba(255,255,255,0.07);
+      border: 2px solid rgba(255,255,255,0.1);
+      border-radius: 12px; cursor: pointer;
+      color: #c0c0e0; transition: all 0.15s;
+      min-height: 64px;
+    }
+    .dept-chip:active { transform: scale(0.95); }
+    .dept-chip.active {
+      background: rgba(124,58,237,0.25);
+      border-color: #7c3aed;
+      color: #c4b5fd;
+    }
+
+    /* ── B Group course cards ──────────────────────────── */
+    .course-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+    .course-card {
+      padding: 10px 8px; text-align: center;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px; cursor: pointer;
+      color: #a0a0c0; font-size: 13px;
+      display: flex; align-items: center; justify-content: center; gap: 4px;
+      transition: all 0.15s; min-height: 44px;
+    }
+    .course-card:active { transform: scale(0.97); }
+    .course-card.course-featured {
+      background: rgba(124,58,237,0.2);
+      border: 2px solid #7c3aed;
+      color: #c4b5fd; font-weight: 700; font-size: 14px;
+    }
+    .course-card.selected {
+      background: rgba(5,150,105,0.25);
+      border-color: #10b981;
+      color: #6ee7b7;
+    }
+    .course-card.course-featured.selected {
+      background: rgba(5,150,105,0.3);
+      border-color: #10b981;
+    }
+
+    /* ── State Screens ────────────────────────────────── */
+    .screen {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; min-height: 100vh; padding: 40px 24px; text-align: center;
+    }
+    .screen-icon { font-size: 88px; margin-bottom: 24px; line-height: 1; }
+    .screen-title { font-size: 30px; font-weight: 900; margin-bottom: 14px; }
+    .screen-desc { font-size: 16px; color: #a0a0c0; line-height: 1.7; }
+    .screen-meta { font-size: 12px; opacity: 0.5; margin-top: 16px; }
+
+    .screen-success { background: linear-gradient(135deg, #052e16, #064e3b); }
+    .screen-success .screen-title { color: #4ade80; }
+    .screen-failed  { background: linear-gradient(135deg, #3b0000, #7f1d1d); }
+    .screen-failed  .screen-title { color: #f87171; }
+    .screen-locked  { background: #080808; }
+    .screen-locked  .screen-title { color: #ef4444; }
+    .screen-waiting { background: radial-gradient(ellipse at 50% 30%, #1a0a3a 0%, #0a0a18 70%); }
+
+    /* Waiting pulse animation */
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.7;transform:scale(0.95);} }
+    .pulse-anim { animation: pulse 2s ease-in-out infinite; }
+    @keyframes dot-blink { 0%{content:'.'} 33%{content:'..'} 66%{content:'...'} }
+    .dot-loader::after { content: ''; animation: dot-blink 1.5s infinite; }
+    @keyframes ripple {
+      0%   { transform: scale(1);   opacity: 0.8; }
+      100% { transform: scale(2.5); opacity: 0; }
+    }
+    .ripple-ring {
+      position: absolute; width: 100px; height: 100px;
+      border-radius: 50%; border: 3px solid #7c3aed;
+      animation: ripple 2s ease-out infinite;
+    }
+    .ripple-ring:nth-child(2) { animation-delay: 0.7s; }
+    .ripple-ring:nth-child(3) { animation-delay: 1.4s; }
+    .ripple-wrap {
+      position: relative; width: 100px; height: 100px;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 24px;
+    }
+    .ripple-icon { font-size: 48px; position: relative; z-index: 1; }
+
+    /* Toast */
+    .toast {
+      position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+      background: #1e1e3a; border: 1px solid #4ade80; color: #4ade80;
+      padding: 12px 20px; border-radius: 10px; font-size: 14px; font-weight: 700;
+      z-index: 999; max-width: 320px; text-align: center;
+      animation: toastIn 0.3s ease-out;
+    }
+    @keyframes toastIn {
+      from { opacity:0; transform: translate(-50%, -8px); }
+      to   { opacity:1; transform: translate(-50%, 0); }
+    }
+
+    /* Variant badge */
+    .badge {
+      position: fixed; top: 10px; right: 10px; padding: 4px 10px;
+      border-radius: 20px; font-size: 10px; font-weight: 700; z-index: 100; pointer-events: none;
+    }
+    .badge-a { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(248,113,113,0.4); }
+    .badge-b { background: rgba(34,197,94,0.15);  color: #4ade80; border: 1px solid rgba(74,222,128,0.4); }
+  </style>
+</head>
+<body>
+<div id="app" class="app-wrap">
+  <div class="screen">
+    <div class="screen-icon pulse-anim">🐶</div>
+    <div style="font-size:18px; color:#8080b0;">連線中，請稍候…</div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script>
+  const FIREBASE_CONFIG = {
+    apiKey: "AIzaSyBl_Dc_d-ylZsOodnyuneg3CjdiyRGRxfE",
+    authDomain: "fatdog-adf25.firebaseapp.com",
+    databaseURL: "https://fatdog-adf25-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "fatdog-adf25",
+    storageBucket: "fatdog-adf25.firebasestorage.app",
+    messagingSenderId: "336972704416",
+    appId: "1:336972704416:web:0b08ec36e61c765e6df7c5",
+    measurementId: "G-S46FM1JGP5"
+  };
+  firebase.initializeApp(FIREBASE_CONFIG);
+  const db = firebase.database();
+
+  // ── 國立臺北護理健康大學 學院／課程結構 ─────────────
+  // 目標課程：健康科技學院 > 健康事業管理系 > 創意品管課
+  const TARGET_DEPT   = '健康科技學院';
+  const TARGET_COURSE = '創意品管課';
+
+  const DEPT_COURSES = {
+    '護理學院': [
+      '基礎護理學','內外科護理學','婦產科護理學','兒科護理學',
+      '精神科護理學','社區衛生護理學','護理倫理學','老年照護學',
+      '急重症護理學','護理研究概論','感染管制實務','護理行政與管理',
+    ],
+    '健康科技學院': [
+      '衛生行政與法規','健康資訊管理','醫療機構管理','長期照護概論',
+      '健康促進實務','語言治療導論','聽力學概論','休閒健康產業管理',
+      '運動與健康科技','創意品管課','醫療品質管理','健康照護體系',
+    ],
+    '人康學院': [
+      '嬰幼兒發展概論','幼兒遊戲理論','運動科學概論','健康心理學',
+      '運動傷害防護','生命教育','死亡學概論','悲傷輔導概論',
+      '嬰幼兒保健','體適能評估',
+    ],
+    '通識教育中心': [
+      '倫理與生命','哲學概論','社會學概論','心理學概論',
+      '藝術欣賞與創作','法律與生活','語文表達與溝通','文學欣賞',
+      '科技與社會','全球化與健康',
+    ],
+  };
+
+  const DEPT_ICONS = {
+    '護理學院':    '🏥',
+    '健康科技學院':'🔬',
+    '人康學院':    '💪',
+    '通識教育中心':'📚',
+  };
+
+  // ── State ─────────────────────────────────────────────
+  let groupId, variant, groupStatus, displayId, studentName;
+  let selectedDeptB   = null;
+  let selectedCourseB = null;
+  let gsListener      = null;
+
+  function uuid() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+      const r = Math.random() * 16 | 0;
+      return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+    });
+  }
+
+  // ── Boot ──────────────────────────────────────────────
+  async function init() {
+    groupId     = localStorage.getItem('fg_groupId')   || uuid();
+    displayId   = localStorage.getItem('fg_displayId') ||
+                  String(Math.floor(100000000 + Math.random() * 900000000));
+    studentName = localStorage.getItem('fg_name') || '';
+    localStorage.setItem('fg_groupId',   groupId);
+    localStorage.setItem('fg_displayId', displayId);
+
+    // Keep inventory in persistent local cache so transaction() never sees null
+    db.ref('/inventory/total').on('value', () => {});
+
+    // Ask for name first if not set
+    if (!studentName) {
+      renderNameInput();
+      return;
+    }
+
+    // Check or register group
+    await ensureGroupRegistered();
+
+    // If already done, render terminal and stop
+    if (groupStatus === 'success') { renderSuccess(); return; }
+    if (groupStatus === 'failed')  { renderFailed();  return; }
+
+    // Live game-status listener drives all state transitions
+    attachGameStatusListener();
+  }
+
+  // ── Name input screen ─────────────────────────────────
+  function renderNameInput() {
+    const el = app();
+    el.className = 'app-wrap';
+    el.innerHTML = `
+      <div class="screen screen-waiting">
+        <div class="screen-icon" style="font-size:64px;">🐕</div>
+        <div style="font-size:22px; font-weight:900; color:#a78bfa; margin-bottom:8px;">神狗散步搶購戰</div>
+        <div style="font-size:14px; color:#6060a0; margin-bottom:32px;">請輸入您的姓名以加入遊戲</div>
+        <div style="width:100%; max-width:300px;">
+          <input id="nameInput" type="text" placeholder="請輸入您的姓名"
+                 autocomplete="name"
+                 style="width:100%; padding:16px 20px; font-size:18px; font-weight:700;
+                        background:rgba(255,255,255,0.08); border:2px solid rgba(255,255,255,0.15);
+                        color:#fff; border-radius:14px; margin-bottom:12px; text-align:center;
+                        box-sizing:border-box; outline:none;"
+                 onkeydown="if(event.key==='Enter') confirmName()">
+          <button onclick="confirmName()"
+                  style="width:100%; padding:16px; font-size:17px; font-weight:900;
+                         background:linear-gradient(135deg,#7c3aed,#4f46e5); color:#fff;
+                         border:none; border-radius:14px; cursor:pointer;
+                         box-shadow:0 0 24px rgba(124,58,237,0.4);">
+            確認加入 →
+          </button>
+        </div>
+      </div>
+    `;
+    setTimeout(() => document.getElementById('nameInput')?.focus(), 100);
+  }
+
+  async function confirmName() {
+    const name = (document.getElementById('nameInput')?.value || '').trim();
+    if (!name) {
+      document.getElementById('nameInput').style.borderColor = '#ef4444';
+      return;
+    }
+    studentName = name;
+    localStorage.setItem('fg_name', name);
+
+    // Resume init flow
+    await ensureGroupRegistered();
+    if (groupStatus === 'success') { renderSuccess(); return; }
+    if (groupStatus === 'failed')  { renderFailed();  return; }
+    attachGameStatusListener();
+  }
+
+  async function ensureGroupRegistered() {
+    const snap = await db.ref(`/groups/${groupId}`).once('value');
+    if (!snap.exists()) {
+      variant = Math.random() < 0.5 ? 'A' : 'B';
+      await db.ref(`/groups/${groupId}`).set({
+        variant, status: 'pending', displayId, name: studentName,
+        ts: firebase.database.ServerValue.TIMESTAMP
+      });
+      groupStatus = 'pending';
+    } else {
+      const g = snap.val();
+      variant     = g.variant;
+      groupStatus = g.status;
+    }
+  }
+
+  function attachGameStatusListener() {
+    if (gsListener) db.ref('/gameStatus').off('value', gsListener);
+    gsListener = db.ref('/gameStatus').on('value', async snap => {
+      // Don't override terminal states
+      if (groupStatus === 'success' || groupStatus === 'failed') return;
+
+      const gs = snap.val() || 'waiting';
+
+      if (gs === 'waiting' || gs === 'racing') {
+        // After a reset, our group may have been deleted — re-register if needed
+        await ensureGroupRegistered();
+        if (groupStatus === 'success') { renderSuccess(); return; }
+        if (groupStatus === 'failed')  { renderFailed();  return; }
+
+        if (gs === 'waiting') renderWaiting();
+        else                  renderForm();
+
+      } else if (gs === 'finished') {
+        groupStatus = 'locked';
+        renderLocked();
+      }
+    });
+  }
+
+  // ── Render helpers ────────────────────────────────────
+  function app() { return document.getElementById('app'); }
+
+  // ── WAITING SCREEN ────────────────────────────────────
+  function renderWaiting() {
+    const el = app();
+    el.className = 'app-wrap';
+    el.innerHTML = `
+      <div class="screen screen-waiting">
+        <div class="ripple-wrap">
+          <div class="ripple-ring"></div>
+          <div class="ripple-ring"></div>
+          <div class="ripple-ring"></div>
+          <span class="ripple-icon">🐕</span>
+        </div>
+        <div class="screen-title" style="color:#a78bfa; font-size:24px;">等候老師開放搶購中</div>
+        <div class="screen-desc" style="margin-top:12px;">
+          請盯著大螢幕，準備手刀！<br>
+          <span style="font-size:28px; margin-top:16px; display:block;">🏃‍♂️💨</span>
+        </div>
+        <div style="margin-top:32px; padding:16px 24px; background:rgba(124,58,237,0.1);
+                    border:1px solid rgba(124,58,237,0.3); border-radius:12px; font-size:13px; color:#8060c0;">
+          <strong style="color:#a78bfa;">${studentName}</strong>，已成功加入！<br>
+          <span style="opacity:0.6; font-size:11px;">等候老師開放搶購</span>
+        </div>
+      </div>
+    `;
+  }
+
+  // ── FORM ──────────────────────────────────────────────
+  function renderForm() {
+    variant === 'A' ? renderA() : renderB();
+  }
+
+  function renderA() {
+    const el = app();
+    el.className = 'app-wrap hell-bg';
+
+    // 健康科技學院（含目標課程）放最底部，其餘學院在前
+    const orderedDepts = ['護理學院', '人康學院', '通識教育中心', '健康科技學院'];
+    const totalCourses = orderedDepts.reduce((s, d) => s + (DEPT_COURSES[d]?.length || 0), 0);
+    // 學院全名對照（只在 A 版顯示）
+    const deptFullNames = { '人康學院': '人類發展與健康學院' };
+    // 用 disabled option 當分隔，不用 optgroup，消除縮排與粗體差異
+    let flatOptions = '';
+    orderedDepts.forEach(dept => {
+      const label = deptFullNames[dept] || dept;
+      flatOptions += `<option value="" disabled>${label}</option>`;
+      (DEPT_COURSES[dept] || []).forEach(c => {
+        flatOptions += `<option value="${c}">${c}</option>`;
+      });
+    });
+
+    el.innerHTML = `
+      <div class="badge badge-a">α 測試版</div>
+      <div class="hell-header">
+        <span class="hell-logo">🐕</span>
+        <span class="hell-site-name">神狗散步搶購系統 v1.0.2 (beta)</span>
+      </div>
+      <div class="hell-nav">
+        <span>首頁</span><span>活動說明</span><span>常見問題</span><span>聯絡我們</span>
+      </div>
+      <div style="padding:10px 10px 0;">
+        <div class="hell-form-wrap">
+          <div class="hell-form-title">🔑 搶購認證表單</div>
+          <div class="hell-field">
+            <label class="hell-label">大螢幕活動識別碼（英數字，區分大小寫）</label>
+            <input id="codeInput" class="hell-input" type="text"
+                   placeholder="請看大螢幕後手動輸入"
+                   autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+          </div>
+          <div class="hell-field">
+            <label class="hell-label">欲加持課程（共 ${totalCourses} 門，請下拉選擇）</label>
+            <select id="courseSelect" class="hell-select">
+              <option value="">請選擇課程</option>
+              ${flatOptions}
+            </select>
+          </div>
+          <div class="hell-field">
+            <label class="hell-label">申請學期（請選擇正確開課學期）</label>
+            <select id="semesterSelect" class="hell-select">
+              <option value="">── 請選擇學期 ──</option>
+              <option value="111-1">111學年度 第1學期</option>
+              <option value="111-2">111學年度 第2學期</option>
+              <option value="112-1">112學年度 第1學期</option>
+              <option value="112-2">112學年度 第2學期</option>
+              <option value="113-1">113學年度 第1學期</option>
+              <option value="113-2">113學年度 第2學期</option>
+              <option value="114-1">114學年度 第1學期</option>
+              <option value="114-2">114學年度 第2學期</option>
+              <option value="115-1">115學年度 第1學期</option>
+              <option value="115-2">115學年度 第2學期</option>
+            </select>
+          </div>
+          <div class="hell-field">
+            <label class="hell-label">申請理由（請詳填，至少 10 字）</label>
+            <textarea id="reasonInput" class="hell-input"
+                      placeholder="請說明您申請加持的理由..."
+                      style="height:52px; resize:none; font-family:inherit;"></textarea>
+          </div>
+          <div class="hell-footer-row">
+            <span class="hell-note">填寫完畢後點擊右側按鈕</span>
+            <button class="hell-submit" onclick="submitA()">送出</button>
+          </div>
+        </div>
+        <div class="hell-disclaimer">
+          本系統受到保護，如有任何疑問請洽系統管理員。<br>
+          版本 1.0.2 | 使用者體驗優化中 | Copyright © 神狗系統有限公司
+        </div>
+      </div>
+    `;
+    const inp = document.getElementById('codeInput');
+    ['paste','copy','cut','contextmenu'].forEach(ev => {
+      inp.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); });
+    });
+  }
+
+  function renderB() {
+    selectedDeptB   = null;
+    selectedCourseB = null;
+    const el = app();
+    el.className = 'app-wrap smooth-bg';
+    const deptChips = Object.keys(DEPT_COURSES).map(d => `
+      <button class="dept-chip" id="chip-${d}" onclick="selectDeptB('${d}')">
+        <span style="font-size:22px;">${DEPT_ICONS[d]}</span>
+        <span style="font-size:13px; font-weight:700;">${d}</span>
+      </button>
+    `).join('');
+
+    el.innerHTML = `
+      <div class="badge badge-b">流暢版</div>
+      <div class="smooth-header" style="padding-bottom:12px;">
+        <div class="smooth-dog" style="font-size:48px;">🐕</div>
+        <div class="smooth-title">神狗散步搶購戰！</div>
+        <div class="smooth-subtitle">限量 10 份 · 搶完即止 · 手刀出擊！</div>
+      </div>
+      <div class="smooth-form" style="padding-bottom:110px;">
+        <div class="smooth-section">
+          <label class="smooth-label">🔑 大螢幕識別碼</label>
+          <input id="codeInput" class="smooth-input" type="text"
+                 placeholder="請輸入大螢幕上的識別碼"
+                 autocomplete="off" spellcheck="false" style="width:100%;">
+          <div class="code-chips">
+            <span style="font-size:12px; color:#5050a0; align-self:center;">快速帶入：</span>
+            <button class="code-chip" onclick="fillCodeB('FATDOG666')">FATDOG666</button>
+            <button class="code-chip" onclick="fillCodeB('FATCAT999')">FATCAT999</button>
+            <button class="code-chip" onclick="fillCodeB('HOTDOG888')">HOTDOG888</button>
+          </div>
+        </div>
+        <div class="smooth-section">
+          <label class="smooth-label">🏛️ 選擇學院</label>
+          <div class="dept-grid">${deptChips}</div>
+        </div>
+        <div class="smooth-section" id="course-section" style="display:none;">
+          <label class="smooth-label">📚 選擇課程</label>
+          <div id="course-grid" class="course-grid"></div>
+        </div>
+        <div class="smooth-section">
+          <label class="smooth-label">📝 申請理由</label>
+          <textarea id="reasonInput" class="smooth-input"
+                    placeholder="請填寫申請理由…"
+                    style="width:100%; height:72px; resize:none; font-family:inherit; font-size:15px;"></textarea>
+          <div class="reason-templates">
+            <button class="reason-tpl" onclick="fillReasonB(this, '希望透過此課程提升學業表現，達成學習目標。')">📌 學業目標</button>
+            <button class="reason-tpl" onclick="fillReasonB(this, '此課程與職涯規劃高度相關，誠摯申請神狗加持！')">💼 職涯規劃</button>
+            <button class="reason-tpl" onclick="fillReasonB(this, '期末考前祈求神狗庇佑，考試順利，順利過關！')">🙏 神狗保佑</button>
+          </div>
+        </div>
+      </div>
+      <button class="smooth-submit" onclick="submitB()">
+        🚀 搶救期末！立即搶狗！
+      </button>
+    `;
+  }
+
+  // ── B interactions ────────────────────────────────────
+  function fillCodeB(code) {
+    const inp = document.getElementById('codeInput');
+    inp.value = code;
+    inp.style.borderColor = 'rgba(255,255,255,0.2)';
+    inp.style.color = '#fff';
+  }
+
+  function fillReasonB(btn, text) {
+    document.getElementById('reasonInput').value = text;
+    document.querySelectorAll('.reason-tpl').forEach(b => b.classList.remove('used'));
+    btn.classList.add('used');
+  }
+
+  function selectDeptB(dept) {
+    selectedDeptB   = dept;
+    selectedCourseB = null;
+    // Update chip active state
+    Object.keys(DEPT_COURSES).forEach(d => {
+      document.getElementById(`chip-${d}`)?.classList.toggle('active', d === dept);
+    });
+    // Render courses
+    const courses     = DEPT_COURSES[dept] || [];
+    const courseGrid  = document.getElementById('course-grid');
+    const courseSection = document.getElementById('course-section');
+    courseGrid.innerHTML = courses.map(c =>
+      `<button class="course-card" id="ccard-${c}" onclick="selectCourseB('${c}')">
+        <span>${c}</span>
+      </button>`
+    ).join('');
+    courseSection.style.display = 'block';
+    courseSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function selectCourseB(course) {
+    selectedCourseB = course;
+    document.querySelectorAll('.course-card').forEach(b => b.classList.remove('selected'));
+    document.getElementById(`ccard-${course}`)?.classList.add('selected');
+  }
+
+  // ── Submit ────────────────────────────────────────────
+  function toast(msg) {
+    const t = document.createElement('div');
+    t.className = 'toast';
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 3000);
+  }
+
+  async function submitA() {
+    const code     = (document.getElementById('codeInput').value      || '').trim();
+    const course   =  document.getElementById('courseSelect').value;
+    const semester =  document.getElementById('semesterSelect').value;
+    const reason   = (document.getElementById('reasonInput').value    || '').trim();
+    if (!code)                    { alert('請輸入識別碼'); return; }
+    if (code !== 'FATDOG666')     { alert('識別碼錯誤，請重新確認大小寫'); return; }
+    if (!course)                  { alert('請選擇課程'); return; }
+    if (course !== TARGET_COURSE) { alert('課程選擇有誤，請重新選擇'); return; }
+    if (!semester)                { alert('請選擇學期'); return; }
+    if (semester !== '114-2')     { alert('學期選擇有誤，請確認開課學期'); return; }
+    if (reason.length < 10)       { alert(`申請理由至少需填寫 10 字（目前 ${reason.length} 字）`); return; }
+    await attemptPurchase();
+  }
+
+  async function submitB() {
+    const code   = (document.getElementById('codeInput').value   || '').trim();
+    const reason = (document.getElementById('reasonInput').value || '').trim();
+    if (!code)                             { toast('❗ 請輸入大螢幕上的識別碼！'); return; }
+    if (code !== 'FATDOG666')              { toast('❗ 識別碼錯誤，請確認後重新輸入！'); return; }
+    if (!selectedDeptB)                    { toast('❗ 請先選擇學院！'); return; }
+    if (!selectedCourseB)                  { toast('❗ 請選擇課程！'); return; }
+    if (selectedCourseB !== TARGET_COURSE) { toast('❗ 請選擇正確課程！'); return; }
+    if (!reason)                           { toast('❗ 請填寫申請理由！'); return; }
+    await attemptPurchase();
+  }
+
+  // ── Core purchase (atomic transaction) ───────────────
+  async function attemptPurchase() {
+    app().innerHTML = `
+      <div class="screen">
+        <div class="screen-icon pulse-anim">⚡</div>
+        <div class="screen-title pulse-anim" style="color:#fbbf24;">搶購中…</div>
+        <div class="screen-desc">正在與其他搶購者激烈競速！</div>
+      </div>
+    `;
+
+    try {
+      // ── Step 1: 先做一次 test write 確認 Firebase 寫入權限 ──
+      // 若 Firebase Rules 封鎖寫入，這裡就會拋出 PERMISSION_DENIED
+      await db.ref(`/groups/${groupId}/ping`).set(Date.now());
+      await db.ref(`/groups/${groupId}/ping`).remove();
+
+      // ── Step 2: 讀取庫存（暖快取） ──
+      const invSnap = await db.ref('/inventory/total').once('value');
+      const invVal  = invSnap.val();
+      console.log('[Purchase] inventory =', invVal);
+
+      if (invVal === null) {
+        renderSysError('庫存未初始化，請通知老師開啟管理頁面並重置遊戲。');
+        return;
+      }
+      if (invVal <= 0) {
+        groupStatus = 'failed';
+        db.ref(`/groups/${groupId}/status`).set('failed').catch(console.error);
+        renderFailed();
+        return;
+      }
+
+      // ── Step 3: 原子性扣減（transaction） ──
+      let txErr    = null;
+      let txResult = null;
+
+      await new Promise(resolve => {
+        db.ref('/inventory/total').transaction(
+          current => {
+            console.log('[Transaction] current =', current, typeof current);
+            if (current === null) {
+              // 快取尚未同步 → 回傳 0 觸發 Firebase 向 server 重取真實值並 retry
+              return 0;
+            }
+            if (current <= 0) return undefined; // 真的售完，abort
+            return current - 1;
+          },
+          (err, committed, snapshot) => {
+            console.log('[Transaction] err:', err, 'committed:', committed,
+                        'remaining:', snapshot?.val());
+            if (err) {
+              txErr = err;
+            } else {
+              txResult = committed
+                ? { ok: true, remaining: snapshot.val() }
+                : { ok: false };
+            }
+            resolve();
+          }
+        );
+      });
+
+      if (txErr) {
+        // Firebase 錯誤（最常見：Security Rules 封鎖寫入）
+        console.error('[Purchase] txErr:', txErr);
+        renderSysError(
+          txErr.code === 'PERMISSION_DENIED'
+            ? 'Firebase 寫入被拒（PERMISSION_DENIED）。\n請到 Firebase Console → Realtime Database → Rules，將 ".write" 改為 true。'
+            : `Firebase 錯誤：${txErr.code || txErr.message}`
+        );
+        return;
+      }
+
+      if (txResult && txResult.ok) {
+        // ── 搶到！後續寫入 ──
+        groupStatus = 'success';
+        await db.ref(`/groups/${groupId}/status`).set('success');
+        await db.ref(`/results/${variant}_count`).transaction(c => (c || 0) + 1);
+        await db.ref('/transactions').push({
+          groupId, variant, displayId, name: studentName,
+          ts: firebase.database.ServerValue.TIMESTAMP
+        });
+        if (txResult.remaining === 0) {
+          await db.ref('/gameStatus').set('finished');
+        }
+        renderSuccess();
+      } else {
+        // Transaction abort = 真的售完（被別人搶走最後一個）
+        groupStatus = 'failed';
+        db.ref(`/groups/${groupId}/status`).set('failed').catch(console.error);
+        renderFailed();
+      }
+
+    } catch (e) {
+      console.error('[Purchase] catch:', e);
+      const msg = e?.code === 'PERMISSION_DENIED'
+        ? 'Firebase 寫入被拒（PERMISSION_DENIED）。\n請到 Firebase Console → Rules，將 ".write" 改為 true。'
+        : `系統錯誤：${e?.message || JSON.stringify(e)}`;
+      renderSysError(msg);
+    }
+  }
+
+  function renderSysError(msg) {
+    app().innerHTML = `
+      <div class="screen">
+        <div class="screen-icon">⚠️</div>
+        <div class="screen-title" style="color:#fbbf24; font-size:20px;">系統錯誤</div>
+        <div class="screen-desc" style="font-size:13px; white-space:pre-line;">${msg}</div>
+        <button onclick="renderForm()"
+                style="margin-top:28px; padding:12px 28px; background:#374151; border:none;
+                       color:#fff; border-radius:8px; font-size:14px; cursor:pointer;">
+          ← 返回重試
+        </button>
+      </div>
+    `;
+  }
+
+  // ── Terminal screens ──────────────────────────────────
+  function renderSuccess() {
+    app().innerHTML = `
+      <div class="screen screen-success">
+        <div class="screen-icon">🎉</div>
+        <div class="screen-title">搶到了！！！</div>
+        <div class="screen-desc">恭喜 <strong>${studentName}</strong> 成功加持神狗！<br>期末成績已加持完畢 🐕✨</div>
+      </div>
+    `;
+  }
+
+  function renderFailed() {
+    app().innerHTML = `
+      <div class="screen screen-failed">
+        <div class="screen-icon">💀</div>
+        <div class="screen-title">名額已售完</div>
+        <div class="screen-desc">您慢了一步…<br>神狗名額已被搶光光 😢<br>下次請再快一點！</div>
+      </div>
+    `;
+  }
+
+  function renderLocked() {
+    app().innerHTML = `
+      <div class="screen screen-locked">
+        <div class="screen-icon">🔒</div>
+        <div class="screen-title">搶購已結束</div>
+        <div class="screen-desc" style="color:#666;">全部名額已搶完！<br>請看大螢幕揭曉結果 👀</div>
+      </div>
+    `;
+  }
+
+  init().catch(e => {
+    console.error(e);
+    app().innerHTML = `
+      <div class="screen">
+        <div class="screen-icon">⚠️</div>
+        <div class="screen-title" style="color:#fbbf24;">連線失敗</div>
+        <div class="screen-desc">請重新整理頁面</div>
+      </div>
+    `;
+  });
+</script>
+</body>
+</html>
