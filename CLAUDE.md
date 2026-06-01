@@ -4,8 +4,9 @@
 - Project ID: `6a1c64da4853e1f02a136300`
 - Service ID: `6a1c64e37a8a8f2f6021511b`
 - Environment ID: `6a1c64dab764eebf4f53b580`
-- **學生端網址**: https://fatdog-rush.zeabur.app/index.html
-- **老師端網址**: https://fatdog-rush.zeabur.app/admin.html
+- **老師端網址（預設首頁）**: https://fatdog-rush.zeabur.app/
+- **學生端網址**: https://fatdog-rush.zeabur.app/student.html
+- **（admin.html 仍保留，但正式入口改為 index.html）**
 
 ## GitHub
 - Repo: https://github.com/mouslun-cpu/FATDOG.git
